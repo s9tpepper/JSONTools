@@ -1,5 +1,6 @@
 package
 {
+	import mx.utils.ObjectUtil;
 	import com.project.example.vo.GroupVO;
 	import com.rational.serialization.json.JSON;
 	import com.adobe.serialization.json.JSON;
@@ -40,8 +41,18 @@ package
 			var search:Array = _json.DATA["(ID == 831)"]; // Searching for objects in DATA with ID of 355
 			var endTime:Number = getTimer();
 			trace("Total time elapsed: " + (endTime - startTime).toString() + "ms");
-			trace("search[0] = " + search[0]); // Output: search[0].NAME = AdobeTURK - Ankara - TURKEY
+			trace("search[0] = " + search[0]);
+			// Output: search[0].NAME = AdobeTURK - Ankara - TURKEY
+			trace("search[0].MEMBERCOUNT = " + search[0].MEMBERCOUNT.valueOf());
+			trace("GroupVO(search[0].valueOf()).MEMBERCOUNT = " + GroupVO(search[0].valueOf()).MEMBERCOUNT);
+			trace("search[0].MEMBERCOUNT = " + search[0].MEMBERCOUNT);
+//			trace("search[0] = " + GroupVO(search[0]).LONGITUDE);
+//			trace("search[0] = " + GroupVO(search[0]).URL);
+			// Output: search[0].NAME = AdobeTURK - Ankara - TURKEY
 			trace("search[0].NAME = " + search[0].NAME); // Output: search[0].NAME = AdobeTURK - Ankara - TURKEY
+			
+			//search[0].NAMEZ = "Hai!";
+			trace(search[0].NAMEZ);
 			
 			
 			// AS3CoreLib

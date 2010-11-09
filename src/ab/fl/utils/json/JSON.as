@@ -37,17 +37,44 @@ package ab.fl.utils.json
 		 * The value key for a JSON object that is not a tree. (Stores native values like String, Number, etc.)
 		 */
 		private var _nonTreeKey:String;
-		
+		/**
+		 * The value key for a JSON object that is a tree.
+		 */
 		private var _treeKey:String;
-		
+		/**
+		 * If not the root node the _owner property is a 
+		 * reference to the JSON node's parent.
+		 */
 		private var _owner:JSON;
 		
+		/**
+		 * Searches for expressions using the "==" operator.
+		 */
 		private const _MATCH_EXPRESSION:RegExp				= new RegExp(/\((\w+)(\s+)?==(\s+)?(["'])?(\w+)(["'])?\)/gi);
+		/**
+		 * Searches for expressions using the "!=" operator.
+		 */
 		private const _OMIT_EXPRESSION:RegExp				= new RegExp(/\((\w+)(\s+)?!=(\s+)?(["'])?(\w+)(["'])?\)/gi);
+		/**
+		 * Searches for expressions using the ">" operator.
+		 */
 		private const _GREATER_THAN_EXPRESSION:RegExp		= new RegExp(/\((\w+)(\s+)?>(\s+)?(["'])?(\w+)(["'])?\)/gi);
+		/**
+		 * Searches for expressions using the ">=" operator.
+		 */
 		private const _GREATER_OR_EQUAL_EXPRESSION:RegExp	= new RegExp(/\((\w+)(\s+)?>=(\s+)?(["'])?(\w+)(["'])?\)/gi);
+		/**
+		 * Searches for expressions using the "<" operator.
+		 */
 		private const _LESS_THAN_EXPRESSION:RegExp			= new RegExp(/\((\w+)(\s+)?<(\s+)?(["'])?(\w+)(["'])?\)/gi);
+		/**
+		 * Searches for expressions using the "<=" operator.
+		 */
 		private const _LESS_OR_EQUAL_EXPRESSION:RegExp		= new RegExp(/\((\w+)(\s+)?<=(\s+)?(["'])?(\w+)(["'])?\)/gi);
+		/**
+		 * List of expressions used to see if a getProperty() call is
+		 * actually a query.
+		 */
 		private const _EXPRESSIONS:Array					= [_MATCH_EXPRESSION, _OMIT_EXPRESSION, _GREATER_THAN_EXPRESSION, _GREATER_OR_EQUAL_EXPRESSION, _LESS_THAN_EXPRESSION, _LESS_OR_EQUAL_EXPRESSION];
 		
 		/**
@@ -160,6 +187,29 @@ package ab.fl.utils.json
 			}
 		}
 		
+		/**
+		 * Returns the raw value representing by the JSON object. For native types such
+		 * as String, Number, etc, the valueOf() method should return the same as calling
+		 * the property by dot notation using the JSON object.  The valueOf() method
+		 * is helpful when the JSON object represents a strong typed object that was
+		 * mapped from a JSON string using the _explicitType property in the JSON string.
+		 * In such cases the valueOf() method will return the instance of the strong
+		 * typed object.  In the example JsonTest.as, the method is used to cast the
+		 * JSON by doing GroupVO(search[0].valueOf()).MEMBERCOUNT, this is also the
+		 * same as just using search[0].MEMBERCOUNT
+		 */
+		public function valueOf():*
+		{
+			return _objectReference;
+		}
+		
+		/**
+		 * This method is a utility method to register classes that are being
+		 * mapped from JSON with the registerClassAlias() method.  Simply 
+		 * removes the need to import the registerClassAlias() by using this
+		 * helper function, using registerClassAlias() maps the classes just
+		 * the same for use with JSONTools JSON to AS3 class mapping.
+		 */
 		static public function registerClass(alias:String, aliasedClass:Class):void
 		{
 			registerClassAlias(alias, aliasedClass);
@@ -293,14 +343,14 @@ package ab.fl.utils.json
 					// Check if the propertyName exists.
 					if (value === undefined)
 					{
-						throw new Error("JSON property '" + propertyName + "' does not exist.");
+						throw new JSONError(JSONError.ERROR_GETTING_PROPERTY_DOESNT_EXIST.replace("{name}", propertyName), 60001);
 					}
 					
-					return value;
+					return _objectReference[propertyName];
 				}
 				catch (e:Error)
 				{
-					throw new Error("JSON property '" + propertyName + "' does not exist.");
+					throw new JSONError(JSONError.ERROR_GETTING_PROPERTY_DOESNT_EXIST.replace("{name}", propertyName), 60001);
 				}
 			}
 			return null;
@@ -314,6 +364,8 @@ package ab.fl.utils.json
 		{
 			try
 			{
+				trace("setProperty: name  = " + name);
+				
 				_objectReference[name] = value;
 				
 				if (!_isTree)
@@ -323,8 +375,7 @@ package ab.fl.utils.json
 			}
 			catch (e:Error)
 			{
-				//trace("I couldn't set the property: " + name + " with the value: " + value);
-				throw new Error("JSON error comitting property '" + name + "', property does not exist.");
+				throw new JSONError(JSONError.ERROR_COMMITING_PROPERTY.replace("{name}", name), 60000);
 			}
 		}
 		/**
@@ -342,19 +393,10 @@ package ab.fl.utils.json
 		 */
 		public function toString():String
 		{
-			if (_isTree)
-			{
-				return _objectReference['toString']();
-			}
-			else
-			{
-				return _objectReference[_nonTreeKey];
-			}
-			
-			return "ab.fl.utils.json.JSON";
+			return "[ ab.fl.utils.json::JSON, json.valueOf()="+ valueOf() +" ]";
 		}
 		/**
-		 * Returns true if the JSON object is a tree node (Object or Array)
+		 * Returns true if the JSON object is a tree node (Object, Array, or custom strong type)
 		 * but not the root.
 		 */
 		public function get isTree():Boolean
