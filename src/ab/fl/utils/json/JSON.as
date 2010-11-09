@@ -227,40 +227,30 @@ package ab.fl.utils.json
 		
 		flash_proxy override function callProperty(name:*, ...rest):*
 		{
-			trace("name = " + name);
+			return null;
 		}
 		flash_proxy override function deleteProperty(name:*):Boolean
 		{
-			trace("name = " + name);
-			
 			return false;
 		}
 		flash_proxy override function getDescendants(name:*):*
 		{
-			trace("name = " + name);
+			return null;
 		}
 		flash_proxy override function hasProperty(name:*):Boolean
 		{
-			trace("name = " + name);
-			
 			return false;
 		}
 		flash_proxy override function isAttribute(name:*):Boolean
 		{
-			trace("name = " + name);
-			
 			return false;
 		}
 		flash_proxy override function nextNameIndex(index:int):int
 		{
-			trace("index = " + index);
-			
 			return 0;
 		}
 		flash_proxy override function nextName(index:int):String
 		{
-			trace("index = " + index);
-			
 			return "empty";
 		}
 		
@@ -376,8 +366,6 @@ package ab.fl.utils.json
 		{
 			try
 			{
-				trace("setProperty: name  = " + name);
-				
 				_objectReference[name] = value;
 				
 				if (!_isTree)
