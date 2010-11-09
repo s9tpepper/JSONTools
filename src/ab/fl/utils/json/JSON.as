@@ -46,36 +46,65 @@ package ab.fl.utils.json
 		 * reference to the JSON node's parent.
 		 */
 		private var _owner:JSON;
-		
+		/**
+		 * List of RegExp objects used to do a search
+		 * with E4J style syntax.
+		 */
+		private var _expressionList:Array;
 		/**
 		 * Searches for expressions using the "==" operator.
 		 */
-		private const _MATCH_EXPRESSION:RegExp				= new RegExp(/\((\w+)(\s+)?==(\s+)?(["'])?(\w+)(["'])?\)/gi);
+		private var _MATCH_EXPRESSION:RegExp;
 		/**
 		 * Searches for expressions using the "!=" operator.
 		 */
-		private const _OMIT_EXPRESSION:RegExp				= new RegExp(/\((\w+)(\s+)?!=(\s+)?(["'])?(\w+)(["'])?\)/gi);
+		private var _OMIT_EXPRESSION:RegExp;
 		/**
 		 * Searches for expressions using the ">" operator.
 		 */
-		private const _GREATER_THAN_EXPRESSION:RegExp		= new RegExp(/\((\w+)(\s+)?>(\s+)?(["'])?(\w+)(["'])?\)/gi);
+		private var _GREATER_THAN_EXPRESSION:RegExp;
 		/**
 		 * Searches for expressions using the ">=" operator.
 		 */
-		private const _GREATER_OR_EQUAL_EXPRESSION:RegExp	= new RegExp(/\((\w+)(\s+)?>=(\s+)?(["'])?(\w+)(["'])?\)/gi);
+		private var _GREATER_OR_EQUAL_EXPRESSION:RegExp;
 		/**
 		 * Searches for expressions using the "<" operator.
 		 */
-		private const _LESS_THAN_EXPRESSION:RegExp			= new RegExp(/\((\w+)(\s+)?<(\s+)?(["'])?(\w+)(["'])?\)/gi);
+		private var _LESS_THAN_EXPRESSION:RegExp;
 		/**
 		 * Searches for expressions using the "<=" operator.
 		 */
-		private const _LESS_OR_EQUAL_EXPRESSION:RegExp		= new RegExp(/\((\w+)(\s+)?<=(\s+)?(["'])?(\w+)(["'])?\)/gi);
+		private var _LESS_OR_EQUAL_EXPRESSION:RegExp;
+		/**
+		 * Searches for expressions using the "==" operator.
+		 */
+		private var _MATCH_EXPRESSION_TEMP:RegExp				= /\((\w+)(\s+)?==(\s+)?(["'])?(\w+)(["'])?\)/gi;
+		/**
+		 * Searches for expressions using the "!=" operator.
+		 */
+		private var _OMIT_EXPRESSION_TEMP:RegExp				= /\((\w+)(\s+)?!=(\s+)?(["'])?(\w+)(["'])?\)/gi;
+		/**
+		 * Searches for expressions using the ">" operator.
+		 */
+		private var _GREATER_THAN_EXPRESSION_TEMP:RegExp		= /\((\w+)(\s+)?>(\s+)?(["'])?(\w+)(["'])?\)/gi;
+		/**
+		 * Searches for expressions using the ">=" operator.
+		 */
+		private var _GREATER_OR_EQUAL_EXPRESSION_TEMP:RegExp	= /\((\w+)(\s+)?>=(\s+)?(["'])?(\w+)(["'])?\)/gi;
+		/**
+		 * Searches for expressions using the "<" operator.
+		 */
+		private var _LESS_THAN_EXPRESSION_TEMP:RegExp			= /\((\w+)(\s+)?<(\s+)?(["'])?(\w+)(["'])?\)/gi;
+		/**
+		 * Searches for expressions using the "<=" operator.
+		 */
+		private var _LESS_OR_EQUAL_EXPRESSION_TEMP:RegExp		= /\((\w+)(\s+)?<=(\s+)?(["'])?(\w+)(["'])?\)/gi;
+		
 		/**
 		 * List of expressions used to see if a getProperty() call is
 		 * actually a query.
 		 */
-		private const _EXPRESSIONS:Array					= [_MATCH_EXPRESSION, _OMIT_EXPRESSION, _GREATER_THAN_EXPRESSION, _GREATER_OR_EQUAL_EXPRESSION, _LESS_THAN_EXPRESSION, _LESS_OR_EQUAL_EXPRESSION];
+		private const _EXPRESSIONS:Array					= [_MATCH_EXPRESSION_TEMP, _OMIT_EXPRESSION_TEMP, _GREATER_THAN_EXPRESSION_TEMP, _GREATER_OR_EQUAL_EXPRESSION_TEMP, _LESS_THAN_EXPRESSION_TEMP, _LESS_OR_EQUAL_EXPRESSION_TEMP];
 		
 		/**
 		 * This property determines whether or not the JSON class should
@@ -198,6 +227,47 @@ package ab.fl.utils.json
 		}
 		
 		/**
+		 * Reinitializes the RegExp objects for a new query, this has to
+		 * be done because the RegExp API is weird and subsequent calls
+		 * to exec() have to be made to exhaust all matches, which works
+		 * in a way that doesn't work well with what its being used for
+		 * in this JSON class, so reinitializing the RegExp is the current
+		 * solution until I can figure out a better way.
+		 */
+		private function _initializeExpressionsList():void
+		{
+			_expressionList = new Array();
+			var expr:RegExp;
+			var newExpr:RegExp;
+			for each (expr in _EXPRESSIONS)
+			{
+				newExpr = new RegExp(expr);
+				switch (expr)
+				{
+					case _GREATER_THAN_EXPRESSION_TEMP:
+						_GREATER_THAN_EXPRESSION = newExpr;
+						break;
+					case _GREATER_OR_EQUAL_EXPRESSION_TEMP:
+						_GREATER_OR_EQUAL_EXPRESSION = newExpr;
+						break;
+					case _MATCH_EXPRESSION_TEMP:
+						_MATCH_EXPRESSION = newExpr;
+						break;
+					case _LESS_THAN_EXPRESSION_TEMP:
+						_LESS_THAN_EXPRESSION = newExpr;
+						break;
+					case _LESS_OR_EQUAL_EXPRESSION_TEMP:
+						_LESS_OR_EQUAL_EXPRESSION = newExpr;
+						break;
+					case _OMIT_EXPRESSION_TEMP:
+						_OMIT_EXPRESSION = newExpr;
+						break;
+				}
+				_expressionList.push(newExpr);
+			}
+		}
+		
+		/**
 		 * Returns the raw value representing by the JSON object. For native types such
 		 * as String, Number, etc, the valueOf() method should return the same as calling
 		 * the property by dot notation using the JSON object.  The valueOf() method
@@ -260,14 +330,16 @@ package ab.fl.utils.json
 		 */
 		flash_proxy override function getProperty(name:*):*
 		{
-			//trace("getProperty()");
-			//trace("name = " + name);
+//			trace("getProperty()");
+//			trace("name = " + name);
 			var propertyName:String = QName(name).toString();
 			if (propertyName && propertyName.length)
 			{
 				try
 				{
 					var value:* = _objectReference[propertyName];
+					
+					_initializeExpressionsList();
 					
 					// Look for queries
 					var searchKey:String;
@@ -276,7 +348,7 @@ package ab.fl.utils.json
 					var item:Object;
 					var expr:RegExp;
 					var regexResult:*;
-					for each (expr in _EXPRESSIONS)
+					for each (expr in _expressionList)
 					{
 						regexResult = expr.exec(propertyName);
 						if (regexResult != null)
@@ -337,6 +409,12 @@ package ab.fl.utils.json
 									break;
 							}
 						}
+						//return (matches.length == 1) ? matches[0] : matches;
+						searchKey = null;
+						searchValue = null;
+						item = null;
+						expr = null;
+						regexResult = null;
 						return matches;
 					}
 					
