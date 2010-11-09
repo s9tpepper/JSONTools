@@ -26,6 +26,8 @@ package
 		{
 			// Register mapped classes
 			ab.fl.utils.json.JSON.registerClass("GroupVO", GroupVO);
+
+			ab.fl.utils.json.JSON.throwJSONErrors = false;
 			
 			var url:URLLoader = new URLLoader();
 				url.addEventListener(Event.COMPLETE, _handleJSONLoaded);

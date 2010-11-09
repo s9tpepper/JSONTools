@@ -78,6 +78,16 @@ package ab.fl.utils.json
 		private const _EXPRESSIONS:Array					= [_MATCH_EXPRESSION, _OMIT_EXPRESSION, _GREATER_THAN_EXPRESSION, _GREATER_OR_EQUAL_EXPRESSION, _LESS_THAN_EXPRESSION, _LESS_OR_EQUAL_EXPRESSION];
 		
 		/**
+		 * This property determines whether or not the JSON class should
+		 * throw JSONError objects when it catches certain errors.  This 
+		 * property defaults to true.  To turn off JSONError objects from
+		 * being thrown the throwJSONErrors property should be set to false.
+		 * Some actions such as calling properties on JSON objects that
+		 * do not exist will result in null returns.
+		 */
+		static public var throwJSONErrors:Boolean = true;
+		
+		/**
 		 * @Constructor
 		 * 
 		 * @param json String representing a JSON object.
@@ -343,14 +353,16 @@ package ab.fl.utils.json
 					// Check if the propertyName exists.
 					if (value === undefined)
 					{
-						throw new JSONError(JSONError.ERROR_GETTING_PROPERTY_DOESNT_EXIST.replace("{name}", propertyName), 60001);
+						if (throwJSONErrors)
+							throw new JSONError(JSONError.ERROR_GETTING_PROPERTY_DOESNT_EXIST.replace("{name}", propertyName), 60001);
 					}
 					
 					return _objectReference[propertyName];
 				}
 				catch (e:Error)
 				{
-					throw new JSONError(JSONError.ERROR_GETTING_PROPERTY_DOESNT_EXIST.replace("{name}", propertyName), 60001);
+					if (throwJSONErrors)
+						throw new JSONError(JSONError.ERROR_GETTING_PROPERTY_DOESNT_EXIST.replace("{name}", propertyName), 60001);
 				}
 			}
 			return null;
@@ -375,7 +387,8 @@ package ab.fl.utils.json
 			}
 			catch (e:Error)
 			{
-				throw new JSONError(JSONError.ERROR_COMMITING_PROPERTY.replace("{name}", name), 60000);
+				if (throwJSONErrors)
+					throw new JSONError(JSONError.ERROR_COMMITING_PROPERTY.replace("{name}", name), 60000);
 			}
 		}
 		/**
