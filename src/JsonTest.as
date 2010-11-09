@@ -34,8 +34,8 @@ package
 			// JSON
 			var startTime:Number = getTimer();
 			_json = new ab.fl.utils.json.JSON(URLLoader(event.target).data);
-			var search:Array = _json.DATA["(ID == 355)"]; // Searching for objects in items with id of OpenNew
-			trace("search[0].NAME = " + search[0].NAME); // Output: search[0].label = Open New
+			var search:Array = _json.DATA["(ID == 355)"]; // Searching for objects in DATA with ID of 355
+			trace("search[0].NAME = " + search[0].NAME); // Output: search[0].NAME = AdobeTURK - Ankara - TURKEY
 			var endTime:Number = getTimer();
 			trace("Total time elapsed: " + (endTime - startTime).toString() + "ms");
 			
