@@ -1,5 +1,7 @@
 package ab.fl.utils.json
 {
+	import flash.net.registerClassAlias;
+	import flash.net.getClassByAlias;
 	import flash.utils.getQualifiedClassName;
 	import flash.utils.Dictionary;
 	import json.JParser;
@@ -128,7 +130,24 @@ package ab.fl.utils.json
 							
 						if (className == "Object")
 						{
-							newJSON.objectReference = new Object();
+							// Look for Class mapping
+							if (Object(value).hasOwnProperty("_explicitType"))
+							{
+								var alias:String = Object(value)._explicitType;
+								try
+								{
+									var mappedClass:Class = getClassByAlias(alias);
+									newJSON.objectReference = new mappedClass();
+								}
+								catch (e:Error)
+								{
+									newJSON.objectReference = new Object();
+								}
+							}
+							else
+							{
+								newJSON.objectReference = new Object();
+							}
 						}
 						else
 						{
@@ -139,6 +158,11 @@ package ab.fl.utils.json
 						break;
 				}
 			}
+		}
+		
+		static public function registerClass(alias:String, aliasedClass:Class):void
+		{
+			registerClassAlias(alias, aliasedClass);
 		}
 		
 		flash_proxy override function callProperty(name:*, ...rest):*
