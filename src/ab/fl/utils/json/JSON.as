@@ -196,24 +196,7 @@ package ab.fl.utils.json
 							
 						if (className == "Object")
 						{
-							// Look for Class mapping
-							if (Object(value).hasOwnProperty("_explicitType"))
-							{
-								var alias:String = Object(value)._explicitType;
-								try
-								{
-									var mappedClass:Class = getClassByAlias(alias);
-									newJSON.objectReference = new mappedClass();
-								}
-								catch (e:Error)
-								{
-									newJSON.objectReference = new Object();
-								}
-							}
-							else
-							{
-								newJSON.objectReference = new Object();
-							}
+							newJSON.objectReference = new Object();
 						}
 						else
 						{
@@ -293,6 +276,94 @@ package ab.fl.utils.json
 		static public function registerClass(alias:String, aliasedClass:Class):void
 		{
 			registerClassAlias(alias, aliasedClass);
+		}
+		
+		/**
+		 * This method will decode a JSON string into 
+		 * ActionScript 3 classes that it finds aliased. In
+		 * order to get classes mapped from the JSON string
+		 * into AS3 objects a JSON object "{...}" must have
+		 * a property named _explicitType set to the AS3 Class' 
+		 * remote class alias, ex. "{'_explicitType':'MyClassAlias'}"
+		 * 
+		 * @param json String of data in JSON format
+		 * 
+		 */
+		static public function decodeToTyped(json:String):*
+		{
+			var plainJSON:Object = JParser.decode(json);
+			
+			var rootType:String = (plainJSON._explicitType) ? plainJSON._explicitType : "Object";
+			var rootClass:Class;
+			try
+			{
+				rootClass = getClassByAlias(rootType);
+			}
+			catch (e:Error)
+			{
+				rootClass = Object;
+			}
+			
+			var rootObj:* = new rootClass();
+			_setStrongProperties(rootObj, plainJSON);
+			
+			return rootObj;
+		}
+		
+		static private function _setStrongProperties(target:*, source:*):void
+		{
+			if (!target)
+				return;
+			
+			var value:*;
+			var className:String;
+			for (var key:String in source)
+			{
+				value = source[key];
+				
+				className = getQualifiedClassName(value);
+				switch (true)
+				{
+					case (value is String):
+					case (value is Number):
+					case (value is int):
+					case (value is uint):
+					case (value is Boolean):
+						target[key] = value;
+						break;
+						
+					case (className == "Object"):
+					case (value is Array):
+						if (className == "Object")
+						{
+							// Look for Class mapping
+							if (Object(value).hasOwnProperty("_explicitType"))
+							{
+								var alias:String = Object(value)._explicitType;
+								try
+								{
+									var mappedClass:Class = getClassByAlias(alias);
+									target[key] = new mappedClass();
+								}
+								catch (e:Error)
+								{
+									target[key] = new Object();
+								}
+							}
+							else
+							{
+								target[key] = new Object();
+							}
+						}
+						else
+						{
+							target[key] = new Array();
+						}
+							
+						_setStrongProperties(target[key], value);
+						break;
+				}
+			}
 		}
 		
 		flash_proxy override function callProperty(name:*, ...rest):*
