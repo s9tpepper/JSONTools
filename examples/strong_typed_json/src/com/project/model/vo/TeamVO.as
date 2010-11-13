@@ -9,5 +9,6 @@ package com.project.model.vo
 		public var name:String;
 		public var players:Array;
 		public var logoURL:String;
+		public var _explicitType:String;
 	}
 }

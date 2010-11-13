@@ -10,5 +10,6 @@ package com.project.model.vo
 		public var lastName:String;
 		public var jerseyNumber:String;
 		public var position:String;
+		public var _explicitType:String;
 	}
 }

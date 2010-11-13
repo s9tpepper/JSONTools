@@ -11,11 +11,11 @@ package
 	/**
 	 * @author Omar Gonzalez
 	 */
-	public class StrongTypedJSONExample extends Sprite
+	public class EncodeStrongTypedJSONExample extends Sprite
 	{
 		private var _textField:TextField;
 		
-		public function StrongTypedJSONExample()
+		public function EncodeStrongTypedJSONExample()
 		{
 			super();
 			
