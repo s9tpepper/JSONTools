@@ -29,9 +29,39 @@ package
 
 			ab.fl.utils.json.JSON.throwJSONErrors = false;
 			
-			var url:URLLoader = new URLLoader();
+			/*var url:URLLoader = new URLLoader();
 				url.addEventListener(Event.COMPLETE, _handleJSONLoaded);
 				url.load(new URLRequest("http://plugrman.com/example/json/testJson.txt"));
+			 */
+			 
+			 var group:GroupVO = new GroupVO();
+			group.ID = 1;
+			group.ADDRESS = "my address";
+			group.AVATAR = "my avatar";
+			group.LATITUDE = 13.236;
+			group.LONGITUDE = 42.236;
+			group.MEMBERCOUNT = 16;
+			group.NAME = "my group";
+			group.TAGLINE = "my group tagline";
+			group.TYPE = 1;
+			group.URL = "my group url";
+
+			 var group2:GroupVO = new GroupVO();
+			group2.ID = 1;
+			group2.ADDRESS = "my other address";
+			group2.AVATAR = "my other avatar";
+			group2.LATITUDE = 13.236;
+			group2.LONGITUDE = 42.236;
+			group2.MEMBERCOUNT = 16;
+			group2.NAME = "my other group";
+			group2.TAGLINE = "my other group tagline";
+			group2.TYPE = 1;
+			group2.URL = "my other group url";
+			group2.groupVO = group;
+			
+			 trace(ObjectUtil.toString(group2));
+			 
+			 trace(ab.fl.utils.json.JSON.encodeToTyped(group2));
 		}
 
 		private function _handleJSONLoaded(event:Event):void

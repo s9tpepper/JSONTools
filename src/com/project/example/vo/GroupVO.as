@@ -19,6 +19,7 @@ package com.project.example.vo
         public var URL:String;
         public var TYPE:Number;
         public var LATITUDE:Number;
+        public var groupVO:GroupVO;
 		public var _explicitType:String;
 		
 		public function GroupVO()

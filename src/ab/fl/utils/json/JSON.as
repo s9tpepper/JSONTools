@@ -1,5 +1,6 @@
 package ab.fl.utils.json
 {
+	import flash.utils.describeType;
 	import flash.net.registerClassAlias;
 	import flash.net.getClassByAlias;
 	import flash.utils.getQualifiedClassName;
@@ -310,6 +311,131 @@ package ab.fl.utils.json
 			return rootObj;
 		}
 		
+		/**
+		 * Encodes an AS3 object into JSON with AS3 types.
+		 */
+		static public function encodeToTyped(data:*):String
+		{
+			var rootType:String = _getClassAlias(data);
+			
+			var root:Object = new Object();
+			if (rootType != "Object")
+			{
+				root._explicitType = rootType;
+			}
+				
+			_encodeStrongProperties(root, data);
+			
+			return JParser.encode(root);
+		}
+		/**
+		 * Recursive method used to encode an object tree
+		 * with class alias info in it, used to encode
+		 * JSON structures that can be decoded into AS3
+		 * objects by JSON.as
+		 */
+		static private function _encodeStrongProperties(target:*, source:*):void
+		{
+			if (!target)
+				return;
+				
+			var sourceKeys:Array = new Array();
+			var sourceInfo:XML = describeType(source);
+			
+			var propertyInfo:XML;
+			var propertiesList:XMLList = sourceInfo.descendants("variable");
+			for each (propertyInfo in propertiesList)
+			{
+				if (sourceKeys.lastIndexOf(propertyInfo.@name.toString()) == -1)
+				{
+					if (propertyInfo.@name.toString() != "_explicitType")
+					{
+						sourceKeys.push(propertyInfo.@name.toString());
+					}
+				}
+			}
+			
+			// get dynamic keys
+			var dynamicKey:String;
+			for (dynamicKey in source)
+			{
+				if (sourceKeys.lastIndexOf(dynamicKey) == -1)
+				{
+					sourceKeys.push(dynamicKey);
+				}
+			}
+			
+				
+			var value:*;
+			var className:String;
+			var key:String;
+			for each (key in sourceKeys)
+			{
+				value = source[key];
+				if (!value)
+				{
+					target[key] = null;
+					continue;
+				}
+				
+				
+				className = getQualifiedClassName(value);
+				switch (true)
+				{
+					case (value is String):
+						target[key] =  value;
+						break;
+					case (value is Boolean):
+					case (value is Number):
+					case (value is int):
+					case (value is uint):
+						target[key] = (value) ? value : null;
+						break;
+						
+					case (className == "Object"):
+					case (value is Array):
+					default: // Custom classes will fall into this case
+						if (className == "Object" || !(value is Array))
+						{
+							// Look for Class mapping
+							target[key] = new Object();
+							var alias:String = _getClassAlias(value);
+							if (alias != "Object")
+							{
+								target[key]._explicitType = alias;
+							}
+						}
+						else
+						{
+							target[key] = new Array();
+						}
+							
+						_encodeStrongProperties(target[key], value);
+						break;
+				}
+			}
+		}
+		/**
+		 * Used to retrieve the alias of an object instance, if
+		 * the object has an alias it is returned, otherwise the
+		 * string "Object" is returned.
+		 */
+		static private function _getClassAlias(obj:*):String
+		{
+			var classAlias:String = "Object";
+			
+			var typeInfo:XML = describeType(obj);
+			
+			classAlias = (typeInfo.@alias.toString()) ? typeInfo.@alias.toString() : "Object";
+			
+			return classAlias;
+		}
+		
+		/**
+		 * Used to set the properties of an AS3 object being
+		 * decoded from a JSON object with _explicitType info
+		 * in it for class mapping.
+		 */
 		static private function _setStrongProperties(target:*, source:*):void
 		{
 			if (!target)
@@ -392,7 +518,7 @@ package ab.fl.utils.json
 		}
 		flash_proxy override function nextName(index:int):String
 		{
-			return "empty";
+			return "";
 		}
 		
 		/**
