@@ -39,6 +39,31 @@ package
 			
 			// Display JSON in text field
 			_textField.text = jsonString;
+			
+			/* Output:
+			 * {
+			 * 		"logoURL":"http://team.com/logo.png",
+			 * 		"players":
+			 * 			[
+			 * 				{
+			 * 					"position":"Guard",
+			 * 					"jerseyNumber":"24",
+			 * 					"lastName":"Bryant",
+			 * 					"_explicitType":"PlayerVO",
+			 * 					"firstName":"Kobe"
+			 * 				},
+			 * 				{
+			 * 					"position":"Forward",
+			 * 					"jerseyNumber":"7",
+			 * 					"lastName":"Odom",
+			 * 					"_explicitType":"PlayerVO",
+			 * 					"firstName":"Lamar"
+			 * 				}
+			 * 			],
+			 * 		"_explicitType":"TeamVO",
+			 * 		"name":"Lakers"
+			 * 	}
+			 */
 		}
 
 		private function _makeATeam():TeamVO
