@@ -506,6 +506,11 @@ package ab.fl.utils.json
 		}
 		flash_proxy override function hasProperty(name:*):Boolean
 		{
+			if (_objectReference[name] != null)
+			{
+				return _objectReference[name];
+			}
+			
 			return false;
 		}
 		flash_proxy override function isAttribute(name:*):Boolean
