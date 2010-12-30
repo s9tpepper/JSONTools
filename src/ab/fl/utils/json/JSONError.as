@@ -16,10 +16,17 @@ package ab.fl.utils.json
 		 */
 		static public const ERROR_COMMITING_PROPERTY:String = "JSON Error Code:#60000: Error comitting property '{name}', property does not exist.";
 		/**
-		 * Error code: 60000.  This error is thrown when an attempt to get 
-		 * a property has been made on a property that does not exist.
+		 * Error code: 60001.  This error is thrown when an attempt to get 
+		 * a property has been made on a property that does not exist on the
+		 * JSON object that was decoded.
 		 */
 		static public const ERROR_GETTING_PROPERTY_DOESNT_EXIST:String = "JSON Error Code:#60001: Error getting property, JSON property '{name}' does not exist.";
+		/**
+		* Error code: 60002.  This error is thrown when an attempt to set
+		* a property has been made on a property that does not exist on the
+		* AS3 object that is being mapped.
+		*/
+		static public const MAPPED_AS3_CLASS_IS_MISSING_PROPERTY:String = "JSON Error Code:#60002: Error setting property on mapped AS3 class, details: ";
 		
 		
 		/**

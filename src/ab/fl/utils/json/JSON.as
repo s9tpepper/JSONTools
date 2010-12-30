@@ -1,13 +1,14 @@
 package ab.fl.utils.json
 {
-	import flash.utils.describeType;
-	import flash.net.registerClassAlias;
 	import flash.net.getClassByAlias;
-	import flash.utils.getQualifiedClassName;
+	import flash.net.registerClassAlias;
 	import flash.utils.Dictionary;
-	import json.JParser;
-	import flash.utils.flash_proxy;
 	import flash.utils.Proxy;
+	import flash.utils.describeType;
+	import flash.utils.flash_proxy;
+	import flash.utils.getQualifiedClassName;
+	
+	import json.JParser;
 
 	/**
 	 * @author Omar Gonzalez :: omar@almerblank.com
@@ -146,6 +147,9 @@ package ab.fl.utils.json
 		{
 			_isRoot = true;
 			
+			if (String(json).charAt(0) == "[")
+				_objectReference = new Array();
+			
 			_plainJson = JParser.decode(json);
 			
 			_buildJSON();
@@ -207,6 +211,9 @@ package ab.fl.utils.json
 						_setProperties(newJSON.objectReference, value, root);
 						break;
 				}
+	
+				if (_keys.lastIndexOf(key) == -1)
+					_keys.push(key);
 			}
 		}
 		
@@ -473,7 +480,15 @@ package ab.fl.utils.json
 								}
 								catch (e:Error)
 								{
-									target[key] = new Object();
+									try
+									{
+										target[key] = new Object();
+									}
+									catch (e2:Error)
+									{
+										if (throwJSONErrors)
+											throw new JSONError(JSONError.MAPPED_AS3_CLASS_IS_MISSING_PROPERTY + e2.getStackTrace());
+									}
 								}
 							}
 							else
@@ -638,6 +653,8 @@ package ab.fl.utils.json
 			return null;
 		}
 		
+		private var _keys:Vector.<String> = new Vector.<String>();
+		
 		/**
 		 * Method called when a property value is set on this
 		 * JSON object instance.
@@ -647,6 +664,11 @@ package ab.fl.utils.json
 			try
 			{
 				_objectReference[name] = value;
+				
+				if (_keys.lastIndexOf(name) == -1)
+				{
+					_keys.push(name);
+				}
 				
 				if (!_isTree)
 				{
@@ -659,6 +681,12 @@ package ab.fl.utils.json
 					throw new JSONError(JSONError.ERROR_COMMITING_PROPERTY.replace("{name}", name), 60000);
 			}
 		}
+		
+		public function hasKey(keyName:String):Boolean
+		{
+			return (_keys.lastIndexOf(keyName) > -1);
+		}
+		
 		/**
 		 * Returns the object holding value references for this JSON
 		 * object proxy.  This object is not meant to be used by classes
