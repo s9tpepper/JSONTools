@@ -118,6 +118,9 @@ package ab.fl.utils.json
 		 */
 		static public var throwJSONErrors:Boolean = true;
 		
+		static public var encoder:Function = JParser.encode;
+		static public var decoder:Function = JParser.decode;
+		
 		/**
 		 * @Constructor
 		 * 
@@ -150,7 +153,7 @@ package ab.fl.utils.json
 			if (String(json).charAt(0) == "[")
 				_objectReference = new Array();
 			
-			_plainJson = JParser.decode(json);
+			_plainJson = decoder(json);
 			
 			_buildJSON();
 		}
@@ -212,8 +215,8 @@ package ab.fl.utils.json
 						break;
 				}
 	
-				if (_keys.lastIndexOf(key) == -1)
-					_keys.push(key);
+//				if (target.keys && target.keys.lastIndexOf(key) == -1)
+//					target.keys.push(key);
 			}
 		}
 		
@@ -299,7 +302,7 @@ package ab.fl.utils.json
 		 */
 		static public function decodeToTyped(json:String):*
 		{
-			var plainJSON:Object = JParser.decode(json);
+			var plainJSON:Object = decoder(json);
 			
 			var rootType:String = (plainJSON._explicitType) ? plainJSON._explicitType : "Object";
 			var rootClass:Class;
@@ -333,7 +336,7 @@ package ab.fl.utils.json
 				
 			_encodeStrongProperties(root, data);
 			
-			return JParser.encode(root);
+			return encoder(root);
 		}
 		/**
 		 * Recursive method used to encode an object tree
@@ -420,6 +423,9 @@ package ab.fl.utils.json
 						_encodeStrongProperties(target[key], value);
 						break;
 				}
+				
+//				if (target.keys && target.keys.lastIndexOf(key) == -1)
+//					target.keys.push(key);
 			}
 		}
 		/**
@@ -504,6 +510,9 @@ package ab.fl.utils.json
 						_setStrongProperties(target[key], value);
 						break;
 				}
+				
+//				if (target.keys && target.keys.lastIndexOf(key) == -1)
+//					target.keys.push(key);
 			}
 		}
 		
@@ -665,9 +674,9 @@ package ab.fl.utils.json
 			{
 				_objectReference[name] = value;
 				
-				if (_keys.lastIndexOf(name) == -1)
+				if (keys && keys.lastIndexOf(name) == -1)
 				{
-					_keys.push(name);
+					keys.push(name);
 				}
 				
 				if (!_isTree)
@@ -752,6 +761,27 @@ package ab.fl.utils.json
 		public function set treeKey(treeKey:String):void
 		{
 			_treeKey = treeKey;
+		}
+
+		public function get keys():Vector.<String>
+		{
+			_keys = new Vector.<String>();
+			
+			var key:String;
+			for (key in objectReference)
+			{
+				if (_keys.lastIndexOf(key) == -1)
+				{
+					_keys.push(key);
+				}
+			}
+			
+			return _keys;
+		}
+
+		public function set keys(keys:Vector.<String>):void
+		{
+			_keys = keys;
 		}
 	}
 }
