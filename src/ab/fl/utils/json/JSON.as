@@ -396,6 +396,8 @@ package ab.fl.utils.json
 						target[key] =  value;
 						break;
 					case (value is Boolean):
+						target[key] = (value !== null) ? value : null;
+						break;
 					case (value is Number):
 					case (value is int):
 					case (value is uint):
