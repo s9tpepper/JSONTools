@@ -7,6 +7,7 @@ package helpers.vo
 		public var aUint:uint;
 		public var aNumber:Number;
 		public var aString:String;
+		public var aBoolean:Boolean;
 		public var _explicitType:String;
 	}
 }
