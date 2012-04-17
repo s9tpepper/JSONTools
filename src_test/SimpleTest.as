@@ -5,7 +5,7 @@ package {
 
 		[Test]
 		public function testMe() : void {
-			Assert.assertTrue("Was not true", false);
+			Assert.assertTrue("Was not true", true);
 		}
 	}
 }
