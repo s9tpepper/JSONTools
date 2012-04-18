@@ -382,7 +382,7 @@ package ab.fl.utils.json
 			for each (key in sourceKeys)
 			{
 				value = source[key];
-				if (!value)
+				if (value==null)
 				{
 					target[key] = null;
 					continue;
@@ -393,15 +393,15 @@ package ab.fl.utils.json
 				switch (true)
 				{
 					case (value is String):
-						target[key] =  value;
+                        target[key] = (value.length) ? value : "";
 						break;
 					case (value is Boolean):
-						target[key] = (value !== null) ? value : null;
+                        target[key] = (value !== null) ? value : false;
 						break;
 					case (value is Number):
 					case (value is int):
 					case (value is uint):
-						target[key] = (value) ? value : null;
+                        target[key] = (value !== null) ? value : null;
 						break;
 						
 					case (className == "Object"):
